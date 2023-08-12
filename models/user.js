@@ -23,7 +23,9 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       birthday: DataTypes.DATE,
       roleID: DataTypes.INTEGER,
+      daySalary: DataTypes.INTEGER,
       baseSalary: DataTypes.INTEGER,
+      income: DataTypes.INTEGER,
       isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     },
     {

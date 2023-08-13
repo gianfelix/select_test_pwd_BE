@@ -18,6 +18,9 @@ const attendanceController = {
         return res.status(400).json({ message: "User is already clocked in" });
       }
 
+      const now = new Date();
+      const month = now.getMonth() + 1;
+
       // Create a new history entry for clock in with ClockOut set to null
       await db.History.create({
         userID,
@@ -26,6 +29,7 @@ const attendanceController = {
         HourlyWorks: 0, // Initialize HourlyWorks to 0
         DaySalary: 0, // Initialize DaySalary to 0
         isOvertime: false, // Initialize isOvertime to false
+        Month: month,
       });
 
       res.status(200).json({ message: "Clock In Successful", userID });
@@ -65,11 +69,14 @@ const attendanceController = {
       history.HourlyWorks = hoursWorked;
 
       if (hoursWorked > 12) {
-        history.DaySalary = user.daySalary / 2; 
+        history.DaySalary = user.daySalary / 2;
+        history.Deduction = user.daySalary / 2; 
       } else if (!history.ClockIn) {
         history.DaySalary = 0; 
+        history.Deduction = user.daySalary
       } else if (hoursWorked <= 11) {
-        history.DaySalary = user.daySalary / 2; 
+        history.DaySalary = user.daySalary / 2;
+        history.Deduction = user.daySalary / 2; 
       }
       await history.save();
 

@@ -25,6 +25,7 @@ app.use(express.json());
 const {
   authRouter,
   attendanceRouter,
+  salaryRouter,
 } = require("./routers");
 // ===========================
 // NOTE : Add your routes here
@@ -33,6 +34,7 @@ app.use(
   "/api",
   authRouter,
   attendanceRouter,
+  salaryRouter,
 );
 app.use("/public", express.static(path.resolve(__dirname, "../public")));
 

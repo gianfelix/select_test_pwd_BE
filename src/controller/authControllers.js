@@ -103,46 +103,31 @@ const authController = {
   updateRegister: async (req, res) => {
     try {
       const { fullname, birthday, username, password } = req.body;
-
-      const existData = await User.findOne({
-        where: {
-          [Op.and]: [
-            { username: username },
-            { username: { [Op.not]: null } }, // Check if username is not null
-            { id: { [Op.not]: req.user.id } }, // Exclude current user
-          ],
-        },
-      });
-
-      if (existData) {
-        return res
-          .status(400)
-          .json({
-            error:
-              "Username already exists or LINK EXPIRED, please contact admin",
-          });
-      }
-
-      console.log("data exist", existData);
-
+  
       if (!fullname || !birthday || !username || !password) {
         return res.status(400).json({ error: "Data tidak lengkap" });
       }
-
+  
       db.sequelize.transaction(async (t) => {
         const cekUser = await User.findByPk(req.user.id);
-        if (!cekUser)
+        if (!cekUser) {
           return res.status(400).json({ message: "User tidak ditemukan" });
-
+        }
+  
+        if (cekUser.isLinkExpired) {
+          return res.status(400).json({ message: "Link has expired" });
+        }
+  
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(password, salt);
-
+  
         cekUser.fullName = fullname;
         cekUser.birthday = new Date(birthday);
         cekUser.username = username;
         cekUser.password = hashPassword;
+        cekUser.isLinkExpired = true; 
         await cekUser.save({ transaction: t });
-
+  
         return res.status(200).json({ message: "Update berhasil" });
       });
     } catch (error) {
@@ -150,6 +135,8 @@ const authController = {
       return res.status(500).json({ message: error });
     }
   },
+  
+  
 };
 
 module.exports = authController;

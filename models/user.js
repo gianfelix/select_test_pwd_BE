@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       baseSalary: DataTypes.INTEGER,
       income: DataTypes.INTEGER,
       isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+      isLinkExpired: { type: DataTypes.BOOLEAN, defaultValue: false },
     },
     {
       sequelize,

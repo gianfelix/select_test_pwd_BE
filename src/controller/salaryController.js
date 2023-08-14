@@ -79,18 +79,25 @@ const salaryController = {
   getSalaryByUserID: async (req, res) => {
     try {
       const { userID } = req.params;
-
-      // Find all Salary records for the given userID
+      const { month, year } = req.query; // Extract query parameters
+  
+      const whereCondition = { userID };
+      if (month && year) {
+        whereCondition.Month = new Date(`${year}-${month}-01T00:00:00Z`);
+      }
+  
+      // Find all Salary records for the given userID and filter by month/year
       const salaryRecords = await db.Salary.findAll({
-        where: { userID },
+        where: whereCondition,
       });
-
+  
       res.status(200).json({ message: "Success", salaryRecords });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   },
+  
 };
 
 module.exports = salaryController;

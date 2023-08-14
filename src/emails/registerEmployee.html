@@ -1,14 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Employee</title>
-  </head>
-  <body>
-    <h1>{{email}} telah registrasi sebagai {{role}}</h1>
-    <p>Selamat bekerja</p>
-    <p>silahkan klik disini untuk memasukan data diri, username, password dan sebagainya</p>
-    <a href="{{redirect}}"> Isi Data</a>
-  </body>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #007bff;
+        }
+        .content {
+            padding: 20px;
+            border-top: 1px solid #ccc;
+        }
+        .content p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome, {{email}}!</h1>
+        </div>
+        <div class="content">
+            <p>Congratulations! You have successfully registered as a new employee.</p>
+            <p>Get ready to start your journey and make an impact.</p>
+            <P style="color: red; font-weight: bold;">You can update your personal information in 1 hour from received this email.</P>
+            <p>Click the button below to provide your personal information, create a username and password, and more:</p>
+            <a href="{{redirect}}" class="cta-button">Complete Registration</a>
+        </div>
+    </div>
+</body>
 </html>

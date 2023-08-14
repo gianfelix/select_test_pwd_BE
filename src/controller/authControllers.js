@@ -14,7 +14,10 @@ const kirimEmailRegis = async (email, user) => {
     expiresIn: "1h",
   });
   const redirect = `http://localhost:3000/regis/${token}`;
-  const data = await fs.readFile(path.resolve(__dirname, "../emails/registerEmployee.html"), "utf-8");
+  const data = await fs.readFile(
+    path.resolve(__dirname, "../emails/registerEmployee.html"),
+    "utf-8"
+  );
   const tesCompile = handlebars.compile(data);
   const tempResult = tesCompile({ email, redirect });
 
@@ -33,7 +36,12 @@ const authController = {
       if (!user) return res.status(500).json({ message: "User not Found" });
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) return res.status(400).json({ message: "password salah" });
-      const payload = { id: user.id, roleID: user.roleID,  isActive: user.isActive, email: user.email };
+      const payload = {
+        id: user.id,
+        roleID: user.roleID,
+        isActive: user.isActive,
+        email: user.email,
+      };
       const token = jwt.sign(payload, process.env.JWT_KEY, {
         expiresIn: "24h",
       });
@@ -52,11 +60,15 @@ const authController = {
         return res.status(400).json({ error: "Data tidak lengkap" });
       }
       const cekUser = await User.findOne({ where: { [Op.or]: [{ email }] } });
-      if (cekUser) return res.status(400).json({ message: "Email sudah terdaftar" });
+      if (cekUser)
+        return res.status(400).json({ message: "Email sudah terdaftar" });
       console.log(1);
 
       db.sequelize.transaction(async (t) => {
-        const user = await User.create({ email, roleID, daySalary, baseSalary }, { transaction: t });
+        const user = await User.create(
+          { email, roleID, daySalary, baseSalary },
+          { transaction: t }
+        );
         await kirimEmailRegis(email, user);
         return res.status(200).json({ message: "register berhasil", user });
       });
@@ -91,11 +103,36 @@ const authController = {
   updateRegister: async (req, res) => {
     try {
       const { fullname, birthday, username, password } = req.body;
-      if (!fullname || !birthday || !username || !password)
+
+      const existData = await User.findOne({
+        where: {
+          [Op.and]: [
+            { username: username },
+            { username: { [Op.not]: null } }, // Check if username is not null
+            { id: { [Op.not]: req.user.id } }, // Exclude current user
+          ],
+        },
+      });
+
+      if (existData) {
+        return res
+          .status(400)
+          .json({
+            error:
+              "Username already exists or LINK EXPIRED, please contact admin",
+          });
+      }
+
+      console.log("data exist", existData);
+
+      if (!fullname || !birthday || !username || !password) {
         return res.status(400).json({ error: "Data tidak lengkap" });
+      }
+
       db.sequelize.transaction(async (t) => {
         const cekUser = await User.findByPk(req.user.id);
-        if (!cekUser) return res.status(400).json({ message: "User tidak ditemukan" });
+        if (!cekUser)
+          return res.status(400).json({ message: "User tidak ditemukan" });
 
         const salt = await bcrypt.genSalt(10);
         const hashPassword = await bcrypt.hash(password, salt);
@@ -104,14 +141,15 @@ const authController = {
         cekUser.birthday = new Date(birthday);
         cekUser.username = username;
         cekUser.password = hashPassword;
-        await cekUser.save(), { transaction: t };
-        return res.status(200).json({ message: "register berhasil" });
+        await cekUser.save({ transaction: t });
+
+        return res.status(200).json({ message: "Update berhasil" });
       });
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: error });
     }
   },
 };
-
 
 module.exports = authController;
